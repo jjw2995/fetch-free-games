@@ -1,18 +1,3 @@
-/**
- *
- *
- * have dateflag to attach event or not
- *
- * get free hrefs
- *  from stream/text/parsed html, dig deeper || just load individual hrefs
- *
- *
- * if (LAST_FETCH_DATE > curDATE) return
- * if (HREFS.len < 1) fetch hrefs
- * while (hrefs) {
- *  get games
- * }
- */
 const LAST_FETCH_DATE = "LAST_FETCH_DATE";
 const HREFS = "HREFS";
 const STORE_HREF = "https://store.epicgames.com/en-US/";
@@ -57,7 +42,7 @@ function setFetchedTime() {}
 // @@@
 
 async function main() {
-    await resolveOnLoad(window);
+    await resolveOnLoad();
 
     if (!isTimeToFetch()) {
         return;
@@ -65,24 +50,31 @@ async function main() {
     console.log("isStoreHref: ", isStoreHref());
     if (!isStoreHref()) {
         // in game page, get the game
-        await resolveOnLoad(window);
-
         console.log("in game page, get the game");
 
-        // `console.log([...window.document.querySelectorAll("button")].filter((e) => {
-        //     return e.innerText.includes("GET");
-        // })[0]);`;
+        // console.log(
+        //     [...window.document.querySelectorAll("button")].filter((e) => {
+        //         return e.innerText.includes("GET");
+        //     })[0]
+        // );
+        let asd = getGetButton()?.click();
+
+        console.log(asd);
+        await resolveOnLoad();
+        console.log(asd);
+
+        console.log(getPlaceOrderButton());
     } else {
         // get free game hrefs & store in localStorage, when in store home
         console.log("store homepage, filling it");
         setHrefs(getFreeGameHrefs());
     }
 
-    console.log(getHrefs());
+    // console.log(getHrefs());
     if (getHrefs().length > 0) {
-        setTimeout(() => {
-            window.location = getNextHref();
-        }, 1000);
+        window.location = getNextHref();
+        // setTimeout(() => {
+        // }, 1000);
     }
 
     console.log("all done, now set next time");
@@ -90,15 +82,19 @@ async function main() {
     //all done, now set next time
 }
 
-function getGetButton(myWindow) {
-    [...myWindow.document.querySelectorAll("button")].filter((e) => {
+function getGetButton() {
+    return [...window.document.querySelectorAll("button")].filter((e) => {
         return e.innerText.includes("GET");
     })[0];
 }
 
-async function resolveOnLoad(myWindow) {
+function getPlaceOrderButton() {
+    return window.document.querySelectorAll("button");
+}
+
+async function resolveOnLoad() {
     return new Promise((resolve, reject) => {
-        myWindow.addEventListener(
+        window.addEventListener(
             "load",
             () => {
                 resolve();
