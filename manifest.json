@@ -9,7 +9,7 @@
     "content_scripts": [
         {
             "js": ["scripts/content.js"],
-            "matches": ["https://store.epicgames.com/en-US/"]
+            "matches": ["https://store.epicgames.com/en-US/*"]
         }
     ]
 }
