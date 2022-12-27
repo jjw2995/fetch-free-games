@@ -9,7 +9,7 @@ function isStoreHref() {
 }
 
 //
-function loadFromStorageByKey(key) {
+function getItemFromStorageByKey(key) {
     return JSON.parse(localStorage.getItem(key));
 }
 function setItemInStorageByKey(key, item) {
@@ -18,7 +18,7 @@ function setItemInStorageByKey(key, item) {
 //
 
 function getHrefs() {
-    return loadFromStorageByKey(HREFS);
+    return getItemFromStorageByKey(HREFS);
 }
 function setHrefs(hrefs) {
     setItemInStorageByKey(HREFS, hrefs);
@@ -59,13 +59,22 @@ function runNextHref() {
  * time
  */
 function isTimeToFetch() {
-    return !LAST_FETCH_TIME || LAST_FETCH_TIME < Date ? true : false;
+    let isLastFetchSTnow = Date.parse(getLastFetchTime()) < Date.now();
+    return !getLastFetchTime() || isLastFetchSTnow ? true : false;
 }
+
+function getLastFetchTime() {
+    return getItemFromStorageByKey(LAST_FETCH_TIME);
+}
+function getNextFetchTime() {
+    return getItemFromStorageByKey(NEXT_FETCH_TIME);
+}
+
 function setNextFetchTime(time) {
     setItemInStorageByKey(NEXT_FETCH_TIME, time);
 }
 function setLastFetchTime() {
-    setItemInStorageByKey(LAST_FETCH_TIME, loadFromStorageByKey(NEXT_FETCH_TIME));
+    setItemInStorageByKey(LAST_FETCH_TIME, getItemFromStorageByKey(NEXT_FETCH_TIME));
 }
 // @@@
 
@@ -73,6 +82,7 @@ async function main() {
     await resolveOnLoad();
 
     if (!isTimeToFetch()) {
+        console.log("reject fetch, not time yet");
         return;
     }
 
@@ -85,22 +95,19 @@ async function main() {
                 return e.src.includes("purchase");
             });
             if (iframes.length > 0) {
-                console.log("iframes: ", iframes);
+                // console.log("iframes: ", iframes);
                 clearInterval(intervalID);
                 iframes[0].addEventListener("load", (e) => {
                     console.log("in loaded iframe");
-                    console.log(iframes[0]);
-                    console.log(iframes[0].contentWindow);
                     console.log(iframes[0].contentWindow.document.querySelector("button.payment-btn"));
+                    iframes[0].contentWindow.document.querySelector("button.payment-btn").click();
                     runNextHref();
                 });
                 return;
             }
-            console.log("not loaded iframes: ", iframes);
         }, 100);
     } else {
-        // get free game hrefs & store in localStorage, when in store home
-        console.log("store homepage, filling it");
+        // store homepage, filling it
         setHrefs(getFreeGameHrefs());
         runNextHref();
     }
