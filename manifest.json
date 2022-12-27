@@ -1,11 +1,11 @@
 {
     "manifest_version": 3,
-    "name": "Reading time",
+    "name": "get free games",
     "version": "1.0",
     "action": {
         "default_popup": "hello.html"
     },
-    "description": "Add the reading time to Chrome Extension documentation articles",
+    "description": "automate getting free games from EpicGames Store",
     "content_scripts": [
         {
             "js": ["scripts/content.js"],
