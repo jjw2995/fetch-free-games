@@ -2,6 +2,8 @@ const LAST_FETCH_TIME = "LAST_FETCH_TIME";
 const NEXT_FETCH_TIME = "NEXT_FETCH_TIME";
 const HREFS = "HREFS";
 
+const TEST = false;
+
 const STORE_HREF = "https://store.epicgames.com/en-US/";
 
 function isStoreHref() {
@@ -31,15 +33,16 @@ function getNextHref() {
     return href;
 }
 
-function getFreeGameAchors() {
-    let achors = [...window.document.querySelectorAll("a")].filter((e) => {
+function getFreeGameAnchors() {
+    let anchors = [...window.document.querySelectorAll("a")].filter((e) => {
         return e.innerText.includes("FREE NOW");
     });
-    setNextFetchTime(achors[0]?.querySelector("time").dateTime);
-    return achors;
+    console.log(anchors);
+    setNextFetchTime(anchors[0]?.querySelector("time").dateTime);
+    return anchors;
 }
 function getFreeGameHrefs() {
-    let freeHrefs = getFreeGameAchors().map((v) => {
+    let freeHrefs = getFreeGameAnchors().map((v) => {
         return v.href;
     });
     return [...freeHrefs];
@@ -50,6 +53,7 @@ function runNextHref() {
     if (nextHref) {
         window.location = nextHref;
     } else {
+        if (TEST) return;
         setLastFetchTime();
     }
 }
@@ -95,13 +99,16 @@ async function main() {
                 return e.src.includes("purchase");
             });
             if (iframes.length > 0) {
-                // console.log("iframes: ", iframes);
+                console.log("iframes: ", iframes);
                 clearInterval(intervalID);
                 iframes[0].addEventListener("load", (e) => {
                     console.log("in loaded iframe");
-                    console.log(iframes[0].contentWindow.document.querySelector("button.payment-btn"));
-                    iframes[0].contentWindow.document.querySelector("button.payment-btn").click();
-                    runNextHref();
+                    let btn = iframes[0].contentWindow.document.querySelector("button.payment-btn");
+                    console.log(btn);
+                    btn.click();
+                    setTimeout(() => {
+                        runNextHref();
+                    }, 5000);
                 });
                 return;
             }
@@ -130,5 +137,7 @@ async function resolveOnLoad() {
         );
     });
 }
+
+// window.
 
 main();
